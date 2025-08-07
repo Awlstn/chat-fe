@@ -1,0 +1,101 @@
+import {
+  Button,
+  Field,
+  Fieldset,
+  Heading,
+  Input,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
+
+const Login = () => {
+  return (
+    <Flex minH="100vh" align="center" justify="center">
+      <Fieldset.Root size="lg" maxW="md">
+        <Flex justify="center">
+          <Heading size="4xl">Chat</Heading>
+        </Flex>
+
+        <Fieldset.Content>
+          <Field.Root>
+            <Field.Label>아이디</Field.Label>
+            <Input name="name" />
+          </Field.Root>
+
+          <Field.Root>
+            <Field.Label>비밀번호</Field.Label>
+            <Input name="email" type="email" />
+          </Field.Root>
+        </Fieldset.Content>
+
+        <Button
+          type="submit"
+          w="full"
+          alignSelf="flex-start"
+          backgroundColor="black"
+        >
+          로그인
+        </Button>
+        <Flex justify="center">
+          <Text>회원가입</Text>
+        </Flex>
+      </Fieldset.Root>
+    </Flex>
+  );
+};
+export default Login;
+
+/**
+ * 사용 컴포넌트 및 주요 props 정리
+ *
+ * Flex
+ *  - 레이아웃용 flexbox 컨테이너
+ *  - 주요 props:
+ *    - minH="100vh": 전체 화면 높이 지정
+ *    - align="center": 교차축(수평) 가운데 정렬
+ *    - justify="center": 주축(수직) 가운데 정렬
+ *    - direction="column" (없으면 기본 row)
+ *
+ * Fieldset.Root
+ *  - 입력 폼 그룹 컨테이너
+ *  - 주요 props:
+ *    - size="lg": 크기 조절 (패딩, 폰트 등)
+ *    - maxW="md": 최대 너비 제한
+ *
+ * Heading
+ *  - 제목 텍스트
+ *  - 주요 props:
+ *    - size="4xl": 텍스트 크기 설정
+ *
+ * Fieldset.Content
+ *  - Fieldset 내 입력 필드 감싸는 영역
+ *
+ * Field.Root
+ *  - 개별 입력 필드 그룹 컨테이너
+ *
+ * Field.Label
+ *  - 입력 필드 라벨 텍스트
+ *
+ * Input
+ *  - 텍스트 입력 필드
+ *  - 주요 props:
+ *    - name: 폼 데이터 식별자
+ *    - type: 입력 타입 (예: "email", "password")
+ *
+ * Button
+ *  - 클릭 가능한 버튼
+ *  - 주요 props:
+ *    - type="submit": 폼 제출 버튼 지정
+ *    - w="full": 부모 너비 100% 차지
+ *    - alignSelf="flex-start": 부모 flex 내 왼쪽 정렬
+ *    - backgroundColor="black": 배경색 지정
+ *    - color="white": 글자색 지정
+ *
+ * Text
+ *  - 일반 텍스트 표시용 컴포넌트
+ *
+ * Flex (중복)
+ *  - 회원가입 텍스트 감싸고 가로 중앙 정렬
+ *  - 주요 props:
+ *    - justify="center": 가로 중앙 정렬
+ */
