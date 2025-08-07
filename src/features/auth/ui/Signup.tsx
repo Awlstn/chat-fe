@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Button,
@@ -12,13 +13,18 @@ import {
 import { postSignup } from "../api/postSignup";
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // 새로고침 방지
     const res = await postSignup({ userId: userId, password: password });
-    console.log(res);
+    console.log(res.status);
+    if (res.status === 201) {
+      navigate("/login");
+    }
   };
 
   return (
