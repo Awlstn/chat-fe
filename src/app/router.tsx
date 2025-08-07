@@ -17,7 +17,7 @@ const router = createBrowserRouter(
       element: <Signup />,
     },
   ],
-  { basename: "/" }
+  { basename: "/chat" }
 );
 
 export default router;

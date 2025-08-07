@@ -38,7 +38,7 @@ const Login = () => {
           로그인
         </Button>
         <Flex justify="center">
-          <Link to="signup">
+          <Link to="/signup">
             <Text>회원가입</Text>
           </Link>
         </Flex>
