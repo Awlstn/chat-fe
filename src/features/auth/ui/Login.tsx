@@ -7,6 +7,7 @@ import {
   Flex,
   Text,
 } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   return (
@@ -37,7 +38,9 @@ const Login = () => {
           로그인
         </Button>
         <Flex justify="center">
-          <Text>회원가입</Text>
+          <Link to="signup">
+            <Text>회원가입</Text>
+          </Link>
         </Flex>
       </Fieldset.Root>
     </Flex>
