@@ -22,7 +22,7 @@ const router = createBrowserRouter(
             element: <Chat />,
         },
     ],
-    { basename: "/chat" },
+    { basename: "/" },
 );
 
 export default router;
