@@ -1,10 +1,25 @@
-import { Box, Input, Text, VStack } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    CloseButton,
+    Dialog,
+    Flex,
+    Input,
+    Portal,
+    Text,
+    VStack,
+} from "@chakra-ui/react";
 import { useState } from "react";
 
 import socket from "@/app/socket";
+import postCreateRoom from "@/features/chat/api/postCreateRoom";
+import { useParams } from "react-router-dom";
 
 const chat = () => {
     const [message, setMessage] = useState("");
+    const [roomName, setRoomName] = useState("");
+    const [open, setOpen] = useState(false);
+    const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -13,6 +28,18 @@ const chat = () => {
         socket.emit("message", message);
         setMessage(""); // 입력창 비우기
     };
+
+    const createRoom = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const res = await postCreateRoom({
+            name: roomName,
+            type: "group",
+            id: id!,
+        });
+        console.log(res.data);
+        setOpen(false); // 다이얼로그 닫기
+    };
+
     return (
         <Box display="flex" height="100vh">
             {/* 좌측 서버 사이드바 */}
@@ -33,15 +60,58 @@ const chat = () => {
 
             {/* 채널 목록 영역 */}
             <Box width="240px" bg="gray.700" padding="4" color="white">
-                <Text fontWeight="bold" mb="4">
-                    채널
-                </Text>
-                <Text fontSize="sm" color="gray.300">
-                    # 일반
-                </Text>
-                <Text fontSize="sm" color="gray.300">
-                    # 잡담
-                </Text>
+                <Flex align="center" justify="space-between" mb="4">
+                    <Text fontWeight="bold" mb="4">
+                        채널
+                    </Text>
+                    <Dialog.Root
+                        open={open}
+                        onOpenChange={({ open }) => {
+                            setOpen(open);
+                        }}
+                    >
+                        <Dialog.Trigger asChild>
+                            <Button variant="outline" size="sm">
+                                채팅방 만들기
+                            </Button>
+                        </Dialog.Trigger>
+                        <Portal>
+                            <Dialog.Backdrop />
+                            <Dialog.Positioner>
+                                <Dialog.Content>
+                                    <Dialog.Header>
+                                        <Dialog.Title>
+                                            채팅방 이름 설정
+                                        </Dialog.Title>
+                                    </Dialog.Header>
+                                    <Box px={6}>
+                                        <Input
+                                            placeholder="채팅방 이름을 입력해주세요..."
+                                            onChange={(e) =>
+                                                setRoomName(e.target.value)
+                                            }
+                                        />
+                                    </Box>
+                                    <Dialog.Footer>
+                                        <Dialog.ActionTrigger asChild>
+                                            <Button variant="outline">
+                                                취소
+                                            </Button>
+                                        </Dialog.ActionTrigger>
+                                        <form onSubmit={createRoom}>
+                                            <Button type="submit">
+                                                만들기
+                                            </Button>
+                                        </form>
+                                    </Dialog.Footer>
+                                    <Dialog.CloseTrigger asChild>
+                                        <CloseButton size="sm" />
+                                    </Dialog.CloseTrigger>
+                                </Dialog.Content>
+                            </Dialog.Positioner>
+                        </Portal>
+                    </Dialog.Root>
+                </Flex>
             </Box>
 
             {/* 채팅 메인 */}
