@@ -1,50 +1,70 @@
-import {
-  Button,
-  Field,
-  Fieldset,
-  Heading,
-  Input,
-  Flex,
-  Text,
-} from "@chakra-ui/react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import {
+    Button,
+    Field,
+    Fieldset,
+    Heading,
+    Input,
+    Flex,
+    Text,
+} from "@chakra-ui/react";
+import { postLogin } from "../api/postLogin";
+
 const Login = () => {
-  return (
-    <Flex minH="100vh" align="center" justify="center">
-      <Fieldset.Root size="lg" maxW="md">
-        <Flex justify="center">
-          <Heading size="4xl">Chat</Heading>
-        </Flex>
+    const [userId, setUserId] = useState("");
+    const [password, setPassword] = useState("");
 
-        <Fieldset.Content>
-          <Field.Root>
-            <Field.Label>아이디</Field.Label>
-            <Input name="name" />
-          </Field.Root>
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const res = await postLogin({ userId: userId, password: password });
+        console.log(res);
+    };
+    return (
+        <form onSubmit={handleSubmit}>
+            <Flex minH="100vh" align="center" justify="center">
+                <Fieldset.Root size="lg" maxW="md">
+                    <Flex justify="center">
+                        <Heading size="4xl">Chat</Heading>
+                    </Flex>
 
-          <Field.Root>
-            <Field.Label>비밀번호</Field.Label>
-            <Input name="email" type="email" />
-          </Field.Root>
-        </Fieldset.Content>
+                    <Fieldset.Content>
+                        <Field.Root>
+                            <Field.Label>아이디</Field.Label>
+                            <Input
+                                name="userId"
+                                onChange={(e) => setUserId(e.target.value)}
+                            />
+                        </Field.Root>
 
-        <Button
-          type="submit"
-          w="full"
-          alignSelf="flex-start"
-          backgroundColor="black"
-        >
-          로그인
-        </Button>
-        <Flex justify="center">
-          <Link to="/signup">
-            <Text>회원가입</Text>
-          </Link>
-        </Flex>
-      </Fieldset.Root>
-    </Flex>
-  );
+                        <Field.Root>
+                            <Field.Label>비밀번호</Field.Label>
+                            <Input
+                                name="password"
+                                type="password"
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </Field.Root>
+                    </Fieldset.Content>
+
+                    <Button
+                        type="submit"
+                        w="full"
+                        alignSelf="flex-start"
+                        backgroundColor="black"
+                    >
+                        로그인
+                    </Button>
+                    <Flex justify="center">
+                        <Link to="/signup">
+                            <Text>회원가입</Text>
+                        </Link>
+                    </Flex>
+                </Fieldset.Root>
+            </Flex>
+        </form>
+    );
 };
 export default Login;
 
