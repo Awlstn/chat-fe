@@ -11,6 +11,7 @@ import {
     Text,
 } from "@chakra-ui/react";
 import { postLogin } from "../api/postLogin";
+import socket from "@/app/socket";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Login = () => {
         try {
             const res = await postLogin({ userId, password });
             if (res.status === 200) {
+                socket.connect(); // 로그인 성공 후 소켓 연결
                 navigate(`/${res.data.id}`);
             } else {
                 alert("로그인 실패");
