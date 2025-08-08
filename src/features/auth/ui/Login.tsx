@@ -1,50 +1,83 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import {
-  Button,
-  Field,
-  Fieldset,
-  Heading,
-  Input,
-  Flex,
-  Text,
+    Button,
+    Field,
+    Fieldset,
+    Heading,
+    Input,
+    Flex,
+    Text,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { postLogin } from "../api/postLogin";
+import socket from "@/app/socket";
 
 const Login = () => {
-  return (
-    <Flex minH="100vh" align="center" justify="center">
-      <Fieldset.Root size="lg" maxW="md">
-        <Flex justify="center">
-          <Heading size="4xl">Chat</Heading>
-        </Flex>
+    const navigate = useNavigate();
 
-        <Fieldset.Content>
-          <Field.Root>
-            <Field.Label>아이디</Field.Label>
-            <Input name="name" />
-          </Field.Root>
+    const [userId, setUserId] = useState("");
+    const [password, setPassword] = useState("");
 
-          <Field.Root>
-            <Field.Label>비밀번호</Field.Label>
-            <Input name="email" type="email" />
-          </Field.Root>
-        </Fieldset.Content>
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const res = await postLogin({ userId, password });
+            if (res.status === 200) {
+                socket.connect(); // 로그인 성공 후 소켓 연결
+                navigate(`/${res.data.id}`);
+            } else {
+                alert("로그인 실패");
+            }
+        } catch (error) {
+            console.error("로그인 중 에러 발생:", error);
+            alert("로그인 요청 중 문제가 발생했습니다.");
+        }
+    };
+    return (
+        <form onSubmit={handleSubmit}>
+            <Flex minH="100vh" align="center" justify="center">
+                <Fieldset.Root size="lg" maxW="md">
+                    <Flex justify="center">
+                        <Heading size="4xl">Chat</Heading>
+                    </Flex>
 
-        <Button
-          type="submit"
-          w="full"
-          alignSelf="flex-start"
-          backgroundColor="black"
-        >
-          로그인
-        </Button>
-        <Flex justify="center">
-          <Link to="/signup">
-            <Text>회원가입</Text>
-          </Link>
-        </Flex>
-      </Fieldset.Root>
-    </Flex>
-  );
+                    <Fieldset.Content>
+                        <Field.Root>
+                            <Field.Label>아이디</Field.Label>
+                            <Input
+                                name="userId"
+                                onChange={(e) => setUserId(e.target.value)}
+                            />
+                        </Field.Root>
+
+                        <Field.Root>
+                            <Field.Label>비밀번호</Field.Label>
+                            <Input
+                                name="password"
+                                type="password"
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </Field.Root>
+                    </Fieldset.Content>
+
+                    <Button
+                        type="submit"
+                        w="full"
+                        alignSelf="flex-start"
+                        backgroundColor="black"
+                    >
+                        로그인
+                    </Button>
+                    <Flex justify="center">
+                        <Link to="/signup">
+                            <Text>회원가입</Text>
+                        </Link>
+                    </Flex>
+                </Fieldset.Root>
+            </Flex>
+        </form>
+    );
 };
 export default Login;
 
