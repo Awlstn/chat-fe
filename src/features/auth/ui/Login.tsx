@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
     Button,
@@ -13,13 +13,24 @@ import {
 import { postLogin } from "../api/postLogin";
 
 const Login = () => {
+    const navigate = useNavigate();
+
     const [userId, setUserId] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await postLogin({ userId: userId, password: password });
-        console.log(res);
+        try {
+            const res = await postLogin({ userId, password });
+            if (res.status === 200) {
+                navigate(`/${res.data.id}`);
+            } else {
+                alert("로그인 실패");
+            }
+        } catch (error) {
+            console.error("로그인 중 에러 발생:", error);
+            alert("로그인 요청 중 문제가 발생했습니다.");
+        }
     };
     return (
         <form onSubmit={handleSubmit}>
