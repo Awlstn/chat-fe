@@ -1,6 +1,18 @@
 import { Box, Input, Text, VStack } from "@chakra-ui/react";
+import { useState } from "react";
+
+import socket from "@/app/socket";
 
 const chat = () => {
+    const [message, setMessage] = useState("");
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (message.trim() === "") return;
+        // 메세지 전송 로직
+        socket.emit("message", message);
+        setMessage(""); // 입력창 비우기
+    };
     return (
         <Box display="flex" height="100vh">
             {/* 좌측 서버 사이드바 */}
@@ -53,13 +65,17 @@ const chat = () => {
 
                 {/* 채팅 입력창 (placeholder) */}
                 <Box p={4}>
-                    <Input
-                        color="white"
-                        placeholder="메세지를 입력해주세요..."
-                        width="100%"
-                        backgroundColor="gray.800"
-                        h="50px"
-                    />
+                    <form onSubmit={handleSubmit}>
+                        <Input
+                            color="white"
+                            placeholder="메세지를 입력해주세요..."
+                            width="100%"
+                            backgroundColor="gray.800"
+                            h="50px"
+                            value={message} // 현재 입력값을 state로 연결
+                            onChange={(e) => setMessage(e.target.value)}
+                        />
+                    </form>
                 </Box>
             </Box>
 
