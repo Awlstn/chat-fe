@@ -23,12 +23,20 @@ interface Room {
     participants: string[];
 }
 
+interface currentRoom {
+    id: string;
+    name: string;
+}
+
 const chat = () => {
     const [message, setMessage] = useState("");
     const [roomName, setRoomName] = useState("");
     const [open, setOpen] = useState(false);
     const [rooms, setRooms] = useState<Room[]>([]);
-    const [currentRoomName, setCurrentRoomName] = useState("");
+    const [currentRoom, setCurrentRoom] = useState<currentRoom>({
+        id: "",
+        name: "",
+    });
     const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -50,8 +58,14 @@ const chat = () => {
         // 방 생성 후 목록 다시 가져오기
         const updatedRooms = await getRoomList(id!);
         setRooms(updatedRooms.data.rooms);
-        setCurrentRoomName(roomName);
+        socket.emit("joinRoom", res.data.roomId); // 방 참가 이벤트 보내기
+        setCurrentRoom({ id: res.data.roomId, name: roomName });
         setOpen(false); // 다이얼로그 닫기
+    };
+
+    const handleRoomClick = (room: Room) => {
+        setCurrentRoom({ id: room._id, name: roomName });
+        socket.emit("joinRoom", room._id); // 방 참가 이벤트 보내기
     };
 
     useEffect(() => {
@@ -145,7 +159,7 @@ const chat = () => {
                                 color="gray.300"
                                 _hover={{ color: "white", bg: "gray.600" }}
                                 py="1.5"
-                                onClick={() => setCurrentRoomName(room.name)}
+                                onClick={() => handleRoomClick(room)}
                             >
                                 {room.name}
                             </Box>
@@ -168,7 +182,7 @@ const chat = () => {
             >
                 {/* 채팅 헤더 */}
                 <Box bg="gray.800" padding="3" borderBottom="1px solid gray">
-                    <Text fontWeight="bold">{currentRoomName}</Text>
+                    <Text fontWeight="bold">{currentRoom.name}</Text>
                 </Box>
 
                 {/* 채팅 내용 (임시 박스) */}
