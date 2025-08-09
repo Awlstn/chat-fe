@@ -29,6 +29,17 @@ interface currentRoom {
     name: string;
 }
 
+interface message {
+    _id: string;
+    roomId: string;
+    sender: {
+        _id: string; // 백엔드에서 populate한 필드 구조에 맞게
+        userId: string;
+    };
+    content: string;
+    createdAt: string;
+}
+
 const chat = () => {
     const [message, setMessage] = useState("");
     const [roomName, setRoomName] = useState("");
@@ -38,6 +49,7 @@ const chat = () => {
         id: "",
         name: "",
     });
+    const [roomMessages, setRoomMessages] = useState<message[]>([]);
     const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -85,11 +97,23 @@ const chat = () => {
         if (currentRoom.id) {
             const fetchMessage = async () => {
                 const res = await getRoomMessages(currentRoom.id);
-                console.log(res);
+                setRoomMessages(res.data.roomMessages);
             };
             fetchMessage();
         }
     }, [currentRoom.id]);
+
+    // 새로 추가할 useEffect (소켓 리스너 등록)
+    useEffect(() => {
+        socket.on("receiveMessage", (newMessage: message) => {
+            console.log("newMessage : ", newMessage);
+            setRoomMessages((prev) => [...prev, newMessage]);
+        });
+
+        return () => {
+            socket.off("receiveMessage");
+        };
+    }, []);
 
     return (
         <Box display="flex" height="100vh">
@@ -202,8 +226,11 @@ const chat = () => {
 
                 {/* 채팅 내용 (임시 박스) */}
                 <Box flex="1" padding="4" overflowY="auto">
-                    <Text>사용자1: 안녕하세요!</Text>
-                    <Text>사용자2: 반가워요 😄</Text>
+                    {roomMessages.map((msg) => (
+                        <Text key={msg._id}>
+                            {msg.sender.userId}: {msg.content}
+                        </Text>
+                    ))}
                 </Box>
 
                 {/* 채팅 입력창 (placeholder) */}
