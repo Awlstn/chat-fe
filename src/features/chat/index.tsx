@@ -28,6 +28,7 @@ const chat = () => {
     const [roomName, setRoomName] = useState("");
     const [open, setOpen] = useState(false);
     const [rooms, setRooms] = useState<Room[]>([]);
+    const [currentRoomName, setCurrentRoomName] = useState("");
     const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -49,7 +50,7 @@ const chat = () => {
         // 방 생성 후 목록 다시 가져오기
         const updatedRooms = await getRoomList(id!);
         setRooms(updatedRooms.data.rooms);
-
+        setCurrentRoomName(roomName);
         setOpen(false); // 다이얼로그 닫기
     };
 
@@ -134,12 +135,20 @@ const chat = () => {
                     </Dialog.Root>
                 </Flex>
                 {/* 채널 목록 영역 */}
-                <Box width="240px" bg="gray.700" padding="4" color="white">
+                <Box width="240px" bg="gray.700" color="white">
                     {rooms.length > 0 ? (
                         rooms.map((room) => (
-                            <Text key={room._id} fontSize="sm" color="gray.300">
+                            <Box
+                                as="button"
+                                width="100%"
+                                textAlign="left"
+                                color="gray.300"
+                                _hover={{ color: "white", bg: "gray.600" }}
+                                py="1.5"
+                                onClick={() => setCurrentRoomName(room.name)}
+                            >
                                 {room.name}
-                            </Text>
+                            </Box>
                         ))
                     ) : (
                         <Text fontSize="sm" color="gray.500">
@@ -159,7 +168,7 @@ const chat = () => {
             >
                 {/* 채팅 헤더 */}
                 <Box bg="gray.800" padding="3" borderBottom="1px solid gray">
-                    <Text fontWeight="bold"># 일반</Text>
+                    <Text fontWeight="bold">{currentRoomName}</Text>
                 </Box>
 
                 {/* 채팅 내용 (임시 박스) */}
