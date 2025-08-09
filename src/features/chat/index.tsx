@@ -9,23 +9,58 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import socket from "@/app/socket";
 import postCreateRoom from "@/features/chat/api/postCreateRoom";
+import getRoomList from "./api/getRoomList";
+import getRoomMessages from "./api/getRoomMessages";
 import { useParams } from "react-router-dom";
+
+interface Room {
+    _id: string;
+    name: string;
+    type: string;
+    participants: string[];
+}
+
+interface currentRoom {
+    id: string;
+    name: string;
+}
+
+interface message {
+    _id: string;
+    roomId: string;
+    sender: {
+        _id: string; // 백엔드에서 populate한 필드 구조에 맞게
+        userId: string;
+    };
+    content: string;
+    createdAt: string;
+}
 
 const chat = () => {
     const [message, setMessage] = useState("");
     const [roomName, setRoomName] = useState("");
     const [open, setOpen] = useState(false);
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [currentRoom, setCurrentRoom] = useState<currentRoom>({
+        id: "",
+        name: "",
+    });
+    const [roomMessages, setRoomMessages] = useState<message[]>([]);
     const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (message.trim() === "") return;
         // 메세지 전송 로직
-        socket.emit("message", message);
+        socket.emit("sendMessage", {
+            roomId: currentRoom.id,
+            sender: id,
+            content: message,
+        });
         setMessage(""); // 입력창 비우기
     };
 
@@ -36,9 +71,49 @@ const chat = () => {
             type: "group",
             id: id!,
         });
-        console.log(res.data);
+
+        // 방 생성 후 목록 다시 가져오기
+        const updatedRooms = await getRoomList(id!);
+        setRooms(updatedRooms.data.rooms);
+        socket.emit("joinRoom", res.data.roomId); // 방 참가 이벤트 보내기
+        setCurrentRoom({ id: res.data.roomId, name: roomName });
         setOpen(false); // 다이얼로그 닫기
     };
+
+    const handleRoomClick = (room: Room) => {
+        setCurrentRoom({ id: room._id, name: room.name });
+        socket.emit("joinRoom", room._id); // 방 참가 이벤트 보내기
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await getRoomList(id!);
+            setRooms(res.data.rooms);
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (currentRoom.id) {
+            const fetchMessage = async () => {
+                const res = await getRoomMessages(currentRoom.id);
+                setRoomMessages(res.data.roomMessages);
+            };
+            fetchMessage();
+        }
+    }, [currentRoom.id]);
+
+    // 새로 추가할 useEffect (소켓 리스너 등록)
+    useEffect(() => {
+        socket.on("receiveMessage", (newMessage: message) => {
+            console.log("newMessage : ", newMessage);
+            setRoomMessages((prev) => [...prev, newMessage]);
+        });
+
+        return () => {
+            socket.off("receiveMessage");
+        };
+    }, []);
 
     return (
         <Box display="flex" height="100vh">
@@ -112,6 +187,28 @@ const chat = () => {
                         </Portal>
                     </Dialog.Root>
                 </Flex>
+                {/* 채널 목록 영역 */}
+                <Box width="240px" bg="gray.700" color="white">
+                    {rooms.length > 0 ? (
+                        rooms.map((room) => (
+                            <Box
+                                as="button"
+                                width="100%"
+                                textAlign="left"
+                                color="gray.300"
+                                _hover={{ color: "white", bg: "gray.600" }}
+                                py="1.5"
+                                onClick={() => handleRoomClick(room)}
+                            >
+                                {room.name}
+                            </Box>
+                        ))
+                    ) : (
+                        <Text fontSize="sm" color="gray.500">
+                            아직 생성된 채팅방이 없습니다..
+                        </Text>
+                    )}
+                </Box>
             </Box>
 
             {/* 채팅 메인 */}
@@ -124,13 +221,16 @@ const chat = () => {
             >
                 {/* 채팅 헤더 */}
                 <Box bg="gray.800" padding="3" borderBottom="1px solid gray">
-                    <Text fontWeight="bold"># 일반</Text>
+                    <Text fontWeight="bold">{currentRoom.name}</Text>
                 </Box>
 
                 {/* 채팅 내용 (임시 박스) */}
                 <Box flex="1" padding="4" overflowY="auto">
-                    <Text>사용자1: 안녕하세요!</Text>
-                    <Text>사용자2: 반가워요 😄</Text>
+                    {roomMessages.map((msg) => (
+                        <Text key={msg._id}>
+                            {msg.sender.userId}: {msg.content}
+                        </Text>
+                    ))}
                 </Box>
 
                 {/* 채팅 입력창 (placeholder) */}
