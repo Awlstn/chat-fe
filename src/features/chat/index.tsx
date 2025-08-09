@@ -9,16 +9,25 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import socket from "@/app/socket";
 import postCreateRoom from "@/features/chat/api/postCreateRoom";
+import getRoomList from "./api/getRoomList";
 import { useParams } from "react-router-dom";
+
+interface Room {
+    _id: string;
+    name: string;
+    type: string;
+    participants: string[];
+}
 
 const chat = () => {
     const [message, setMessage] = useState("");
     const [roomName, setRoomName] = useState("");
     const [open, setOpen] = useState(false);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const { id } = useParams(); // URL에서 :id 파라미터 가져오기
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -36,9 +45,17 @@ const chat = () => {
             type: "group",
             id: id!,
         });
-        console.log(res.data);
+
         setOpen(false); // 다이얼로그 닫기
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await getRoomList(id!);
+            setRooms(res.data.rooms);
+        };
+        fetchData();
+    }, []);
 
     return (
         <Box display="flex" height="100vh">
@@ -112,6 +129,20 @@ const chat = () => {
                         </Portal>
                     </Dialog.Root>
                 </Flex>
+                {/* 채널 목록 영역 */}
+                <Box width="240px" bg="gray.700" padding="4" color="white">
+                    {rooms.length > 0 ? (
+                        rooms.map((room) => (
+                            <Text key={room._id} fontSize="sm" color="gray.300">
+                                {room.name}
+                            </Text>
+                        ))
+                    ) : (
+                        <Text fontSize="sm" color="gray.500">
+                            아직 생성된 채팅방이 없습니다..
+                        </Text>
+                    )}
+                </Box>
             </Box>
 
             {/* 채팅 메인 */}
