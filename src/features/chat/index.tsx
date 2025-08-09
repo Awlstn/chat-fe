@@ -43,7 +43,11 @@ const chat = () => {
         e.preventDefault();
         if (message.trim() === "") return;
         // 메세지 전송 로직
-        socket.emit("message", message);
+        socket.emit("sendMessage", {
+            roomId: currentRoom.id,
+            sender: id,
+            content: message,
+        });
         setMessage(""); // 입력창 비우기
     };
 
@@ -64,7 +68,7 @@ const chat = () => {
     };
 
     const handleRoomClick = (room: Room) => {
-        setCurrentRoom({ id: room._id, name: roomName });
+        setCurrentRoom({ id: room._id, name: room.name });
         socket.emit("joinRoom", room._id); // 방 참가 이벤트 보내기
     };
 
