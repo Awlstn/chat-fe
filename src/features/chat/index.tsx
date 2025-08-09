@@ -46,6 +46,10 @@ const chat = () => {
             id: id!,
         });
 
+        // 방 생성 후 목록 다시 가져오기
+        const updatedRooms = await getRoomList(id!);
+        setRooms(updatedRooms.data.rooms);
+
         setOpen(false); // 다이얼로그 닫기
     };
 
