@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import socket from "@/app/socket";
 import postCreateRoom from "@/features/chat/api/postCreateRoom";
 import getRoomList from "./api/getRoomList";
+import getRoomMessages from "./api/getRoomMessages";
 import { useParams } from "react-router-dom";
 
 interface Room {
@@ -79,6 +80,16 @@ const chat = () => {
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (currentRoom.id) {
+            const fetchMessage = async () => {
+                const res = await getRoomMessages(currentRoom.id);
+                console.log(res);
+            };
+            fetchMessage();
+        }
+    }, [currentRoom.id]);
 
     return (
         <Box display="flex" height="100vh">
