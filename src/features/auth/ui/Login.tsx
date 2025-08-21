@@ -24,6 +24,7 @@ const Login = () => {
         try {
             const res = await postLogin({ userId, password });
             if (res.status === 200) {
+                localStorage.setItem("token", res.data.token); // 로컬스토리지에 토큰 저장
                 socket.connect(); // 로그인 성공 후 소켓 연결
                 navigate(`/${res.data.id}`);
             } else {
