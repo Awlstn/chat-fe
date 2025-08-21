@@ -26,6 +26,8 @@ const Login = () => {
             if (res.status === 200) {
                 localStorage.setItem("token", res.data.token); // 로컬스토리지에 토큰 저장
                 socket.connect(); // 로그인 성공 후 소켓 연결
+                const token = localStorage.getItem("token");
+                socket.emit("login", token);
                 navigate(`/${res.data.id}`);
             } else {
                 alert("로그인 실패");
