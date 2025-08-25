@@ -16,6 +16,7 @@ import postCreateRoom from "@/features/chat/api/postCreateRoom";
 import getRoomList from "./api/getRoomList";
 import getRoomMessages from "./api/getRoomMessages";
 import { useParams } from "react-router-dom";
+import { FriendRequest } from "./ui/friendRequest";
 
 interface Room {
     _id: string;
@@ -251,6 +252,7 @@ const chat = () => {
 
             {/* 유저 리스트 */}
             <Box width="240px" bg="gray.800" padding="4" color="white">
+                <FriendRequest />
                 <Text fontWeight="bold" mb="4">
                     온라인
                 </Text>
